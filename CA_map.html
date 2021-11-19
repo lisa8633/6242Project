@@ -109,9 +109,9 @@
 
 			//Define map projection
 			var projection = d3.geo.mercator()
-								   .center([ -120, 37 ])
+								   .center([ -118, 37 ])
 								   .translate([ w/2, h/2 ])
-								   .scale([ w*3.3 ]);
+								   .scale([ w*2.5 ]);
 
 			//Define path generator
 			var path = d3.geo.path()
@@ -124,6 +124,7 @@
 						.attr("height", h);
 
 			//Load in GeoJSON data
+
 			d3.json("cb_2014_us_county_5m.json", function(json) {
 				//Bind data and create one path per GeoJSON feature
 
@@ -140,8 +141,10 @@
                     json.features.sort(function(x, y){
                        return x.properties.NAME.localeCompare(y.properties.NAME);
                     })
+
                     console.log(data)
                     console.log(json)
+
                     county = svg.append("g").attr("id","CA").selectAll("path")
 					.data(json.features)
 					.enter()
@@ -190,20 +193,21 @@
                     var count = 0;
                     county
                     .style("fill", function (d){
-                        if(count<data.length){
-                            if (data[count].County == d.properties.NAME) {
-                                count += 1
-                                //console.log(d.properties.NAME)
-                                return color(data[count-1].Counts)
-
+                        var found = 0;
+                    for (i =0; i< data.length;i++){
+                        if (data[i].County == d.properties.NAME) {
+                            //console.log(data[i].County)
+                            if (data[i].County) {
+                                found = 1
+                                //console.log(grouped_n[i].country);
+                                return color(data[i].Counts);
                             }
                         }
-                        else {
-                            return "#aaa";
-                        }
-                        return "#aaa"
-
-                    })
+                  }
+                    if (found ==0){
+                        return "#aaa";
+                    }
+              })
                     //const cir = svg.append("g").attr("id","symbols").selectAll("circle")
                     //var c = cir
                     //    .data(data).enter()
