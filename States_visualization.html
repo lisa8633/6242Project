@@ -3,12 +3,12 @@
 <head>
     <title>Accidents in Each State</title>
     <meta charset="utf-8">
-    <script type="text/javascript" src="../lib/d3.v5.min.js"></script>
-    <script type="text/javascript" src="../lib/d3-dsv.min.js"></script>
-    <script type="text/javascript" src="../lib/d3-geo-projection.v2.min.js"></script>
-    <script type="text/javascript" src="../lib/d3-legend.min.js"></script>
-    <script type="text/javascript" src="../lib/d3-tip.min.js"></script>
-    <script type="text/javascript" src="../lib/topojson.v2.min.js"></script>
+    <script type="text/javascript" src="./lib/d3.v5.min.js"></script>
+    <script type="text/javascript" src="./lib/d3-dsv.min.js"></script>
+    <script type="text/javascript" src="./lib/d3-geo-projection.v2.min.js"></script>
+    <script type="text/javascript" src="./lib/d3-legend.min.js"></script>
+    <script type="text/javascript" src="./lib/d3-tip.min.js"></script>
+    <script type="text/javascript" src="./lib/topojson.v2.min.js"></script>
 
     
     <style>
@@ -17,6 +17,7 @@
     </style>
 
     <title></title>
+
 </head>
 
 
@@ -112,7 +113,7 @@
         //draw the plot
         countries = svg.append('g')
                     .attr("id","countries")
-
+        console.log(states.features)
         countries.selectAll("path")
             .data(states.features)
             .enter()
@@ -125,7 +126,24 @@
             })
             .attr("d", path)
             .on("mouseover", tip.show)
-            .on("mouseout",  tip.hide);
+            .on("mouseout",  tip.hide)
+         .on("click", function(d){
+             if (d.properties.STUSPS == "CA"){
+                 location.href='CA_map.html'
+             }
+             else if (d.properties.STUSPS == "TX"){
+                 location.href='TX_map.html'
+             }
+             else if (d.properties.STUSPS == "FL"){
+                 location.href='FL_map.html'
+             }
+             else if (d.properties.STUSPS == "GA"){
+                 location.href='GA_map.html'
+             }
+             else{
+
+             }
+                });
 
         //legend
         var q1 = d3.quantile(accidents,0.25);
