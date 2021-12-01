@@ -77,7 +77,7 @@
 
 
     </style>
-    <button class="b" onclick="location.href = 'States_visualization.html'">Go back to U.S. map</button>
+    <button class="b" onclick="location.href = '../../States_visualization.html'">Go back to U.S. map</button>
 
     <title></title>
 </head>
@@ -96,20 +96,20 @@
         d3.select('#container').append('h2').text('County Name:  '+countyname);
         d3.select('#container').append('p').text('Page loading...').style('text-align','center').attr('id','message');
 
-        var mydata =  d3.dsv(",","data_final_project.csv",function(d){
+        var mydata =  d3.dsv(",","../../data_final_project.csv",function(d){
             return d;
         }).then(function(data){
             mydata = data.filter(function(d){return d.State == "FL" && d.County=="Orange";});
             return mydata;
         });
-        var clusters = d3.dsv(',','Centers.csv',function(d){
+        var clusters = d3.dsv(',','../../Centers.csv',function(d){
             return d;
         }).then(function(data){
             data = data.filter(function(d){return d.State == "FL" && d.County=="Orange";});
             return data;
         });
 
-        var county_json = d3.json("us_county.json");
+        var county_json = d3.json("../../us_county.json");
 
         Promise.all([mydata, clusters, county_json]).then(function([mydata, clusters, county_json]) {
             ready(null, mydata, clusters, county_json);
