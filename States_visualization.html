@@ -155,6 +155,16 @@
         legend = svg.append('g')
                     .attr("id","legend")
 
+        legend.append("text")
+          .attr('id','legend_title')
+          .attr("x", width+60)
+          .attr("y", 40)
+          .attr("font-size",12)
+            .style("text-anchor", "middle")
+            .style("font-weight", "bold")
+          .attr("fill","black")
+          .text("Number of Accidents");
+
         legend.selectAll('.legend')
                 .data(q4)
                 .enter()
@@ -179,16 +189,49 @@
                 })
                 .attr("font-size",12)
 
+        //Further Investigation
+        further_states = ['California','Florida','Texas','Georgia']
+        svg.append("text")
+          .attr('id','further')
+          .attr("x", width-4)
+          .attr("y", 200)
+          .attr("font-size",12)
+            .style("font-weight", "bold")
+          .attr("fill","black")
+          .text("States for Further Investigation");
+
+        svg.selectAll('.legend')
+            .data(further_states)
+            .enter()
+            .append("text")
+          .attr('id','further')
+          .attr("x", width-4)
+          .attr("y", function(d,i){return 223+y*i+5*i;})
+          .attr("font-size",12)
+          .attr("fill","black")
+          .text(function(d,i){
+                    return further_states[i]
+                });
+
+        svg.append("text")
+          .attr('id','further')
+          .attr("x", width-4)
+          .attr("y", 304)
+          .attr("font-size",12)
+          .attr("fill","black")
+          .text("(Click on the map)");
+
+
         //title
           svg.append("text")
           .attr('id','title')
           .attr("x", width/2)
           .attr("y", 25)
-          .attr("font-size",20)
+          .attr("font-size",25)
             .style("text-anchor", "middle")
             .style("font-weight", "bold")
           .attr("fill","black")
-          .text("Number of Accidents Across the States");
+          .text("Number of Traffic Accidents Across the US");
 
         }
     </script>
