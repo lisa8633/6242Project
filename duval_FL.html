@@ -143,7 +143,7 @@
 
             var maxnum = d3.max(clusters, function(d){return d.counts})
             var minnum = d3.min(clusters, function(d){return d.counts})
-            var clusterScale = d3.scaleLinear().domain([0,maxnum]).range([3,20])
+            var clusterScale = d3.scaleLinear().domain([0,maxnum]).range([3,10])
 
             //Create Action Function
             var mouseover = function(d){
