@@ -30,10 +30,10 @@
             padding: 5px;
         }
         .button{
-            width:30px;
-            height:30px;
+            width:20px;
+            height:20px;
             stroke:rgba(0, 72, 255, 0.541);
-            stroke-width: 5px;
+            stroke-width: 3px;
             fill:white;
         }
         .b {
@@ -94,6 +94,7 @@
     <script type="text/javascript">
         var countyname='Los Angeles';
         d3.select('#container').append('h2').text('County Name:  '+countyname);
+        d3.select('#container').append('p').text('Page loading...').style('text-align','center').attr('id','message');
 
         var mydata =  d3.dsv(",","data_final_project.csv",function(d){
             return d; 
@@ -193,8 +194,6 @@
                 Tooltip
                     .style("left",(d3.mouse(this)[0]+10) + "px")
                     .style('top',(d3.mouse(this)[1]+50)+'px')
-                    .style("left",'1000px')
-                    .style('top','200px')
                     .style('width','200px')
                     .html('Area:'+d.properties.name);
             }
@@ -207,10 +206,13 @@
             var removepoints = function(d){
                 if(showpoints==1){
                     d3.selectAll('circle').style('opacity',0);
+                    d3.select(this).style('fill','white');
                     showpoints=0;
                 }
                 else{
                     d3.selectAll('circle').style('opacity',1);
+                    cluster_ele.selectAll('circle').style('opacity',0.5);
+                    d3.select(this).style('fill','rgba(0, 72, 255, 0.541)');
                     showpoints=1;
                 }
             }
@@ -218,12 +220,14 @@
             var loadimage1 = function(d){
                 if(showimage1==0){
                     console.log('loadimage1');
+                    d3.select(this).style('fill','rgba(0, 72, 255, 0.541)');
                     image1 = images.append('img').attr('src','./6242TBLData&Graph/data4CA/CA4LA/image1.png').attr('width',w)
                     showimage1=1;
                 }
                 else{
                     console.log('removeimage1');
                     image1.remove();
+                    d3.select(this).style('fill','white');
                     showimage1=0;
                 }
             }
@@ -231,12 +235,14 @@
             var loadimage2 = function(d){
                 if(showimage2==0){
                     console.log('loadimage2');
+                    d3.select(this).style('fill','rgba(0, 72, 255, 0.541)');
                     image2 = images.append('img').attr('src','./6242TBLData&Graph/data4CA/CA4LA/image2.png').attr('width',w)
                     showimage2=1;
                 }
                 else{
                     console.log('removeimage2');
                     image2.remove();
+                    d3.select(this).style('fill','white');
                     showimage2=0;
                 }
             }
@@ -258,6 +264,29 @@
                 .on('mousemove',mousemove1)
                 .on('mouseleave',mouseleave1);
             
+            
+            //Draw Cluster Circles
+            cluster_ele = svg1.append("g").attr('class','clusters')
+            cluster_ele.selectAll('circle')
+                .data(clusters)
+                .enter()
+                .append('circle')
+                .attr('cx',function(d){
+                    //console.log(projection([d.Lng, d.Lat]));
+                    return projection([d.Lat, d.Lng])[0];
+                })
+                .attr('cy',function(d){
+                    return projection([d.Lat, d.Lng])[1];
+                })
+                .attr('r',function(d){
+                    return clusterScale(d.counts)
+                })
+                .style('fill','yellow')
+                .style('stroke','black')
+                .attr('location',function(d){return [d.Lat, d.Lng];})
+                .style('stroke-width',3)
+                .style('opacity',0.5);
+
             //Draw Accidents
             circles = svg1.append("g").attr('class','accidents')
                 .selectAll('circle')
@@ -281,29 +310,6 @@
                 .on('mousemove',mousemove)
                 .on('mouseleave',mouseleave)
                 ;
-            
-            //Draw Cluster Circles
-            cluster_ele = svg1.append("g").attr('class','clusters')
-            cluster_ele.selectAll('circle')
-                .data(clusters)
-                .enter()
-                .append('circle')
-                .attr('cx',function(d){
-                    //console.log(projection([d.Lng, d.Lat]));
-                    return projection([d.Lat, d.Lng])[0];
-                })
-                .attr('cy',function(d){
-                    return projection([d.Lat, d.Lng])[1];
-                })
-                .attr('r',function(d){
-                    return clusterScale(d.counts)
-                })
-                .style('fill','yellow')
-                .style('stroke','black')
-                .attr('location',function(d){return [d.Lat, d.Lng];})
-                .style('stroke-width',3)
-                .style('opacity',0.3)
-
 
             //Draw buttons
             buttons = d3.select('#container').append('svg')
@@ -312,6 +318,8 @@
             button1 = buttons.append('g');
             button1.append('rect')
                 .attr('class','button')
+                .attr('transform','translate(15,5)')
+                .style('fill','rgba(0, 72, 255, 0.541)')
                 .on('click',removepoints);
             button1.append('text')
                 .text('Click to show/hide accidents')
@@ -321,6 +329,7 @@
             button2 = buttons.append('g').attr('transform','translate(290,0)');
             button2.append('rect')
                 .attr('class','button')
+                .attr('transform','translate(15,5)')
                 .on('click',loadimage1);
             button2.append('text')
                 .text('Click to show/hide insights for day/night')
@@ -329,6 +338,7 @@
             button3 = buttons.append('g').attr('transform','translate(600,0)');
             button3.append('rect')
                 .attr('class','button')
+                .attr('transform','translate(15,5)')
                 .on('click',loadimage2);
             button3.append('text')
                 .text('Click to show/hide insights for severity')
@@ -349,6 +359,7 @@
                 .attr('class','images');
                 //.style('left','800px');
             
+            d3.select('#message').remove();
             console.log('page load complete!');
         };
 
