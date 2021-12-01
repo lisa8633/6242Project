@@ -29,6 +29,10 @@
 				font-size: 24px;
 				margin: 0;
 			}
+            h2 {
+				font-size: 12px;
+				margin: 0;
+			}
 
 			p {
 				font-size: 16px;
@@ -94,6 +98,7 @@
 		<div id="container">
 
 			<h1>California Traffic Accidents</h1>
+            <h2>1. Los Angles, 2. San Bernardino, 3. Orange, 4. San Diego, 5. Sacramento</h2>
 			</div>
 
 		<div id="tooltip" class="hidden">
@@ -182,7 +187,15 @@
 						})
                     .on("mouseout", function(){
                         d3.select("#tooltip").classed("hidden", true);
-						});
+						})
+                    .on("click", function(d){
+             if (d.properties.NAME == "Los Angeles") {
+                 location.href = 'los-angeles.html'
+             }
+             else{
+
+             }
+                });;
 
                     var color_domain = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000]
                     var ext_color_domain = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000]
