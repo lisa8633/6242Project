@@ -192,14 +192,11 @@
             var loadimage1 = function(d){
                 if(showimage1==0){
                     console.log('loadimage1');
-                    d3.select(this).style('fill','rgba(0, 72, 255, 0.541)');
-                    image1 = images.append('img').attr('src','./image1.png').attr('width',w)
+                    image1 = images.append('img').attr('src','./6242TBLData&Graph/data4TX/TX4Bexar/image1.png').attr('width',w)
                     showimage1=1;
                 }
                 else{
-                    image1 = images.append('img').attr('src','./image1.png').attr('width',w)
                     console.log('removeimage1');
-                    d3.select(this).style('fill','white');
                     image1.remove();
                     showimage1=0;
                 }
@@ -207,15 +204,12 @@
             showimage2=0;
             var loadimage2 = function(d){
                 if(showimage2==0){
-                    //document.getElementById('botton3').style.color='red';
-                    d3.select(this).style('fill','rgba(0, 72, 255, 0.541)');
                     console.log('loadimage2');
-                    image2 = images.append('img').attr('src','./image2.png').attr('width',w)
+                    image2 = images.append('img').attr('src','./6242TBLData&Graph/data4TX/TX4Bexar/image2.png').attr('width',w)
                     showimage2=1;
                 }
                 else{
                     console.log('removeimage2');
-                    d3.select(this).style('fill','white');
                     image2.remove();
                     showimage2=0;
                 }
