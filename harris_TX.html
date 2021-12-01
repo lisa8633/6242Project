@@ -291,12 +291,12 @@
                 .attr('x',40).attr('y',20);
                 //.style('fill','black');
 
-            button2 = buttons.append('g').attr('transform','translate(300,0)');
+            button2 = buttons.append('g').attr('transform','translate(290,0)');
             button2.append('rect')
                 .attr('class','button')
                 .on('click',loadimage1);
             button2.append('text')
-                .text('Click to show/hide ')
+                .text('Click to show/hide insights for day/night')
                 .attr('x',40).attr('y',20);
 
             button3 = buttons.append('g').attr('transform','translate(600,0)');
@@ -304,7 +304,7 @@
                 .attr('class','button')
                 .on('click',loadimage2);
             button3.append('text')
-                .text('Click to show/hide data insights')
+                .text('Click to show/hide insights for severity')
                 .attr('x',40).attr('y',20);
 
             //Define Tooltip
