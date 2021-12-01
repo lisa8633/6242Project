@@ -55,7 +55,7 @@
 			}
 		path {
 				fill: #799dcb;
-				stroke: green;
+				stroke: white;
 				}   
 
         circle{
@@ -87,59 +87,39 @@
             mydata = data.filter(function(d){return d.County=="Los Angeles";});
             return mydata;
         });
-        var clusters = d3.dsv(',','cluster_center.csv',function(d){
+        var clusters = d3.dsv(',','los-angeles-clusters.csv',function(d){
             return d;
         }).then(function(data){
             return data;
         });
         
         var county_json = d3.json("los-angeles-county.geojson");
-        my_county_json=county_json;
-        var all_county_json = d3.json('us-county-boundaries.geojson');
 
-        Promise.all([mydata, clusters, county_json, all_county_json]).then(function([mydata, clusters, county_json, all_county_json]) {
-            ready(null, mydata, clusters, county_json, all_county_json);
+        Promise.all([mydata, clusters, county_json]).then(function([mydata, clusters, county_json]) {
+            ready(null, mydata, clusters, county_json);
         });
 
-        function ready(error, mydata, clusters, county_json, all_county_json){
-            createVisualization(mydata, clusters, county_json, all_county_json)
+        function ready(error, mydata, clusters, county_json){
+            createVisualization(mydata, clusters, county_json)
         }
         
-        function createVisualization(mydata, clusters, county_json, all_county_json){
-            console.log(county_json);
-            console.log('log json');
-            console.log(all_county_json);
-            console.log('log allcounty json');
-            console.log(mydata);
-            console.log('log data');
-            console.log(clusters);
-            console.log('log clusters');
-                //data.sort(function(x, y){
-                //   return x.County.localeCompare(y.County);
-                //})
-                //json.features.sort(function(x, y){
-                //   return x.properties.name.localeCompare(y.properties.name);
-                //})
+        function createVisualization(mydata, clusters, county_json){
+            //console.log(county_json);
+            //console.log('log json');
+            //console.log(mydata);
+            //console.log('log data');
+            //console.log(clusters);
+            //console.log('log clusters');
             
-            		//Width and height
+            //Width and height
 		    var w = 960;
 		    var h = 700;
     
 		    //Define map projection
 		    var projection = d3.geoMercator()
-                    //.center([ -98, 30 ])
-                    //.scale(50000)
-                    //.translate([ 103700, 31950 ]);
                     .scale(25000)
                     .translate([ 52000, 16250 ]);
-            //projection.fitSize([w,h],myjson.features);
-            //var projection = d3.geoAlbers().fitExtent(
-            //    [
-            //        [0,0],
-            //        [w,h],
-            //    ],
-            //    json.features
-            //)
+
 
 		    //Define path generator
 		    var path = d3.geoPath().projection(projection);
@@ -157,6 +137,7 @@
             var minnum = d3.min(clusters, function(d){return d.accident_num})
             var clusterScale = d3.scaleLinear().domain([minnum,maxnum]).range([20,50])
 
+            //Create Action Function
             var mouseover = function(d){
                 if(showpoints==1){
                     //console.log('mouseover function executed!');
@@ -244,24 +225,9 @@
                     showimage2=0;
                 }
             }
-            //var update = function(){
-            //    cb = d3.select(this);
-            //    grp = cb.property('value')
-            //    if(cb.property('checked')){
-            //        
-            //    }
-            //}
-            svg1.append('g')
-                .attr('class','state')
-                .selectAll("path")
-			    .data(all_county_json.features)
-			    .enter()
-			    .append("path")
-			    .attr("d", path)
-                .attr('name',function(d){
-                    return d.properties.name;
-                })
-                .style('fill','white');
+
+
+            //Draw Map
             district = svg1.append("g")
                 .attr('class','county')
                 .attr("id",countyname)
@@ -276,7 +242,8 @@
                 .on('mouseover',mouseover1)
                 .on('mousemove',mousemove1)
                 .on('mouseleave',mouseleave1);
-                
+            
+            //Draw Accidents
             circles = svg1.append("g").attr('class','accidents')
                 .selectAll('circle')
                 .data(mydata)
@@ -300,6 +267,7 @@
                 .on('mouseleave',mouseleave)
                 ;
             
+            //Draw Cluster Circles
             cluster_ele = svg1.append("g").attr('class','clusters')
             cluster_ele.selectAll('circle')
                 .data(clusters)
@@ -319,16 +287,8 @@
                 .style('stroke-width',3)
                 .style('opacity',0.3)
 
-            //cluster_ele.append('circle')
-            //    .attr('cx',function(d){
-            //        return projection([d.longtitude, d.latitude])[0];
-            //    })
-            //    .attr('cy',function(d){
-            //        return projection([d.longtitude, d.latitude])[1];
-            //    })
-            //    .attr('r',3)
-            //    .style('fill','red');
 
+            //Draw buttons
             buttons = d3.select('#container').append('svg')
                 .attr('class','buttons')
                 //.attr('transform','translate(800,-700)');
@@ -357,6 +317,7 @@
                 .text('Click to show/hide data insights')
                 .attr('x',40).attr('y',20);
             
+            //Define Tooltip
             var Tooltip = d3.select('#container')
                 .append('div')
                 .attr('id','mytool')
