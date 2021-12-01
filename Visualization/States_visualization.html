@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+    <title>Accidents in Each State</title>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="./lib/d3.v5.min.js"></script>
+    <script type="text/javascript" src="./lib/d3-dsv.min.js"></script>
+    <script type="text/javascript" src="./lib/d3-geo-projection.v2.min.js"></script>
+    <script type="text/javascript" src="./lib/d3-legend.min.js"></script>
+    <script type="text/javascript" src="./lib/d3-tip.min.js"></script>
+    <script type="text/javascript" src="./lib/topojson.v2.min.js"></script>
+
+    
+    <style>
+        /* define CSS rules here */
+    
+    </style>
+
+    <title></title>
+
+</head>
+
+
+<body>
+    <script>
+    
+        // enter code to define margin and dimensions for svg
+        var margin = {
+                    top:100,
+                    right:100,
+                    left:100,
+                    bottom:100
+                    };
+
+        var width = 800
+        var height = 400
+
+
+        // enter code to create svg
+        var svg = d3.select('body').append('svg')
+              .attr('id','svg')
+              .attr('width', width  + 200)
+              .attr('height', height + 200)
+              .attr("transform", "translate(100,100)"); 
+
+        var projection = d3.geoAlbersUsa()
+                            .scale(1000)
+                            .translate([width/2, height/2+100]) ;
+        var path = d3.geoPath().projection(projection);
+
+        var states = d3.json('states.geojson');
+        
+        var Data = d3.csv('Accident_Count_Per_State.csv');
+        var colorScheme = ["#fee5d9","#fcae91","#fb6a4a","#cb181d"];
+        
+
+        Promise.all([states,Data]
+            
+        ).then(([states,Data])=>{
+            ready(null,states,Data)
+            // enter code to call ready() with required arguments
+        }
+        );
+        
+        
+        function ready(error, states, Data) {
+            createMapAndLegend(states, Data)
+        }
+
+
+        function createMapAndLegend(states, Data){ 
+        /*May begin*/
+        
+        accidents = []
+        accidents_dic = {}
+        for(var i=0;i<Data.length;i++){
+            accidents.push(Data[i].Counts)
+            accidents_dic[Data[i].State] = Data[i].Counts
+        }
+        var colorScale = d3.scaleQuantile()
+                            .domain(accidents)
+                            .range(colorScheme)
+
+        var targetColor = function(target){
+                for (var i = Data.length -1; i >= 0; i--){
+                    if (target == Data[i].State){
+                        return colorScale(Data[i].Counts)
+                    }
+                }
+                return "#fee5d9";
+            }
+        //tip
+        var formatThousands = d3.format(",")
+        var tip = d3.tip()
+                    .attr('id','tooltip')
+                    .offset([0,0])
+                    .html(function(d){
+                        this_acc = accidents_dic[d.properties['STUSPS']];
+
+                        if(isNaN(this_acc))
+                            this_acc = 'N/A';
+                        return "<strong>State:</strong><span>"+ d.properties['NAME'] + "</span><br>"+
+                                "<strong>Num of Accidents: </strong><span>"+ formatThousands(this_acc) + "</span><br>";
+                    });
+
+
+        svg.call(tip);
+
+        d3.select("#tooltip")
+            .style("background-color", 'grey')
+            .style("color", 'white')
+            .style("font-size",'10px');
+        //draw the plot
+        countries = svg.append('g')
+                    .attr("id","countries")
+        console.log(states.features)
+        countries.selectAll("path")
+            .data(states.features)
+            .enter()
+            .append("path")
+            .attr("class","states")
+            .attr("stroke","#000")
+            .attr("strok-width",1)
+            .attr("fill",function(d,i){
+                return targetColor(d.properties.STUSPS)
+            })
+            .attr("d", path)
+            .on("mouseover", tip.show)
+            .on("mouseout",  tip.hide)
+         .on("click", function(d){
+             if (d.properties.STUSPS == "CA"){
+                 location.href='./CA/CA_map.html'
+             }
+             else if (d.properties.STUSPS == "TX"){
+                 location.href='./TX/TX_map.html'
+             }
+             else if (d.properties.STUSPS == "FL"){
+                 location.href='./FL/FL_map.html'
+             }
+             else if (d.properties.STUSPS == "GA"){
+                 location.href='./GA/GA_map.html'
+             }
+             else{
+
+             }
+                });
+
+        //legend
+        var q1 = d3.quantile(accidents,0.25);
+        var q2 = d3.quantile(accidents,0.5);
+        var q3 = d3.quantile(accidents,0.75);
+        var q4 = [parseInt(accidents[48]),q3,q2,q1]
+        var x = 15, y = 15
+
+        legend = svg.append('g')
+                    .attr("id","legend")
+
+        legend.append("text")
+          .attr('id','legend_title')
+          .attr("x", width+60)
+          .attr("y", 40)
+          .attr("font-size",12)
+            .style("text-anchor", "middle")
+            .style("font-weight", "bold")
+          .attr("fill","black")
+          .text("Number of Accidents");
+
+        legend.selectAll('.legend')
+                .data(q4)
+                .enter()
+                .append('rect')
+                .attr('x',width)
+                .attr('y',function(d,i){return 50+y*i+5*i;})
+                .attr('width',x)
+                .attr('height',y)
+                .style('fill', function(d,i){return colorScheme[i];})
+
+        legend.selectAll('.legend')
+                .data(q4)
+                .enter()
+                .append('text')
+                .attr('x',width+x+15)
+                .attr('y',function(d,i){return 62+y*i+5*i;})
+                .text(function(d,i){
+                    if(i<3)
+                        return formatThousands(q4[i]) + ' to ' + formatThousands(q4[i+1])
+                    else
+                        return formatThousands(q4[i]) + ' to ' + formatThousands(parseInt(accidents[0]))
+                })
+                .attr("font-size",12)
+
+        //Further Investigation
+        further_states = ['California','Florida','Texas','Georgia']
+        svg.append("text")
+          .attr('id','further')
+          .attr("x", width-4)
+          .attr("y", 200)
+          .attr("font-size",12)
+            .style("font-weight", "bold")
+          .attr("fill","black")
+          .text("States for Further Investigation");
+
+        svg.selectAll('.legend')
+            .data(further_states)
+            .enter()
+            .append("text")
+          .attr('id','further')
+          .attr("x", width-4)
+          .attr("y", function(d,i){return 223+y*i+5*i;})
+          .attr("font-size",12)
+          .attr("fill","black")
+          .text(function(d,i){
+                    return further_states[i]
+                });
+
+        svg.append("text")
+          .attr('id','further')
+          .attr("x", width-4)
+          .attr("y", 304)
+          .attr("font-size",12)
+          .attr("fill","black")
+          .text("(Click on the map)");
+
+
+        //title
+          svg.append("text")
+          .attr('id','title')
+          .attr("x", width/2)
+          .attr("y", 25)
+          .attr("font-size",25)
+            .style("text-anchor", "middle")
+            .style("font-weight", "bold")
+          .attr("fill","black")
+          .text("Number of Traffic Accidents Across the US");
+
+        }
+    </script>
+
+</body>
+
+</html>
