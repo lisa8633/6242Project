@@ -168,26 +168,7 @@
                         .attr('r',2);
                 }
             }
-            var mouseover1 = function(d){
-                //console.log('mouseover function executed!');
-                Tooltip.style('opacity',1);
-                d3.select(this)
-                    .style('fill','#48494b');
-            }
-            var mousemove1 = function(d){
-                Tooltip
-                    .style("left",(d3.mouse(this)[0]+10) + "px")
-                    .style('top',(d3.mouse(this)[1]+50)+'px')
-                    .style("left",'1000px')
-                    .style('top','200px')
-                    .style('width','200px')
-                    .html('Area:'+d.properties.name);
-            }
-            var mouseleave1 = function(d) {
-                Tooltip.style("opacity", 0);
-                d3.select(this)
-                    .style('fill','#799dcb')
-            }
+            
             showpoints=1;
             var removepoints = function(d){
                 if(showpoints==1){
@@ -238,10 +219,7 @@
 			    .attr("d", path)
                 .attr('name',function(d){
                     return d.properties.name;
-                })
-                .on('mouseover',mouseover1)
-                .on('mousemove',mousemove1)
-                .on('mouseleave',mouseleave1);
+                });
             
             //Draw Accidents
             circles = svg1.append("g").attr('class','accidents')
