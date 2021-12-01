@@ -5,8 +5,8 @@
 		<title>Florida Traffic Accidents</title>
 
 		<script type="text/javascript" src="//d3js.org/d3.v3.min.js"></script>
-    <script src="./lib/d3-tip.min.js"></script>
-    <script src="./lib/d3-legend.min.js"></script>
+    <script src="../lib/d3-tip.min.js"></script>
+    <script src="../lib/d3-legend.min.js"></script>
     <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
     <script src="https://d3js.org/topojson.v2.min.js"></script>
 
@@ -140,8 +140,8 @@
 
 			//Load in GeoJSON data
 
-			d3.json("us_county.json", function(json) {
-			     d3.csv("Accident_Count_Per_County&State.csv", function(data) {
+			d3.json("../us_county.json", function(json) {
+			     d3.csv("../Accident_Count_Per_County&State.csv", function(data) {
                      data = data.filter(state);
                      function state(age) {
                          return age.State == "FL";
