@@ -32,8 +32,9 @@
         .button{
             width:30px;
             height:30px;
-            background-color:brown;
-            fill:blue;
+            stroke:rgba(0, 72, 255, 0.541);
+            stroke-width: 5px;
+            fill:white;
         }
 		h1 {
 				font-size: 24px;
@@ -78,7 +79,7 @@
     </div>
 
     <script type="text/javascript">
-        var countyname='los-angeles';
+        var countyname='Los Angeles';
         d3.select('#container').append('h2').text('County Name:  '+countyname);
 
         var mydata =  d3.dsv(",","data_final_project.csv",function(d){
@@ -204,7 +205,7 @@
             var loadimage1 = function(d){
                 if(showimage1==0){
                     console.log('loadimage1');
-                    image1 = images.append('img').attr('src','./image1.png').attr('width',w)
+                    image1 = images.append('img').attr('src','./6242TBLData&Graph/data4CA/CA4LA/image1.png').attr('width',w)
                     showimage1=1;
                 }
                 else{
@@ -217,7 +218,7 @@
             var loadimage2 = function(d){
                 if(showimage2==0){
                     console.log('loadimage2');
-                    image2 = images.append('img').attr('src','./image2.png').attr('width',w)
+                    image2 = images.append('img').attr('src','./6242TBLData&Graph/data4CA/CA4LA/image2.png').attr('width',w)
                     showimage2=1;
                 }
                 else{
