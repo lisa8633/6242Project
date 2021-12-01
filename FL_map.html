@@ -185,7 +185,27 @@
 						})
                     .on("mouseout", function(){
                         d3.select("#tooltip").classed("hidden", true);
-						});
+						})
+                         .on("click", function(d){
+             if (d.properties.NAME == "Miami-Dade") {
+                 location.href = 'miami_FL.html'
+             }
+             else if (d.properties.NAME == "Orange") {
+                 location.href = 'orange_FL.html'
+             }
+             else if (d.properties.NAME == "Broward") {
+                 location.href = 'broward_FL.html'
+             }
+             else if (d.properties.NAME == "Hillsborough") {
+                 location.href = 'hillsborough_FL.html'
+             }
+             else if (d.properties.NAME == "Duval") {
+                 location.href = 'duval_FL.html'
+             }
+             else{
+
+             }
+                });
 
                     var color_domain = [250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 2750, 500000];
                      var ext_color_domain = [0, 250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 2750, 500000];
