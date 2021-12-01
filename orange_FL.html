@@ -84,13 +84,13 @@
         var mydata =  d3.dsv(",","data_final_project.csv",function(d){
             return d;
         }).then(function(data){
-            mydata = data.filter(function(d){return d.County=="Orange";});
+            mydata = data.filter(function(d){return d.State == "FL" && d.County=="Orange";});
             return mydata;
         });
         var clusters = d3.dsv(',','Centers.csv',function(d){
             return d;
         }).then(function(data){
-            data = data.filter(function(d){return d.County=="Orange";});
+            data = data.filter(function(d){return d.State == "FL" && d.County=="Orange";});
             return data;
         });
 
