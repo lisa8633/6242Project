@@ -12,16 +12,24 @@
     <script src="https://d3js.org/topojson.v2.min.js"></script>
 	<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css"
+      integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+      crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js"
+      integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
+      crossorigin=""></script>
+
 
 
     <style type="text/css">
         #container {
-				width: 800px;
-				margin-left: 30px;
-				margin-right: auto;
-				margin-top: 30px;
-				padding: 30px;
-				background-color: white;
+            width: 960px;
+            height:700px;
+			margin-left: 0px;
+			margin-right: auto;
+			margin-top: 0px;
+			padding: 0px;
+			background-color: none;
 			}
         .buttons{
             width:960px;
@@ -36,25 +44,16 @@
             stroke-width: 3px;
             fill:white;
         }
-        .b {
-          border: none;
-          color: white;
-          padding: 10px 25px;
-          text-align: center;
-          text-decoration: none;
-          display: inline-block;
-          font-size: 16px;
-          margin: 4px 2px;
-          cursor: pointer;
-            background-color: #799dcb;
-        }
 		h1 {
-				font-size: 24px;
-				margin: 0;
-                text-align:center;
+            top:850px;
+            width:960px;
+			font-size: 24px;
+			margin: 0;
+            text-align:center;
 			}
         h2 {
 			font-size: 20px;
+            width:960px;
 			margin: 0;
             text-align:center;
 		}
@@ -69,16 +68,37 @@
 		path {
 				fill: #799dcb;
 				stroke: white;
+                opacity: 0.6;
 				}
 
-        circle{
-            pointer-events:all;
+        .b {
+          border: none;
+          color: white;
+          padding: 10px 25px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 16px;
+          margin: 4px 2px;
+          cursor: pointer;
+            background-color: #799dcb;
         }
-
+        #map{
+            width:960px;
+            height:700px;
+            top:30px;
+            left:30px;
+        }
+        #tooltip{
+            position:absolute;
+            background-color: white;
+            padding:5px;
+            width:180px;
+        }
 
     </style>
     <button class="b" onclick="location.href = '../../States_visualization.html'">Go back to U.S. map</button>
-    <button class="b" onclick="location.href = '../GA_map.html'">Go back to Georgia map</button>
+    <button class="b" onclick="location.href = '../CA_map.html'">Go back to California map</button>
 
     <title></title>
 </head>
@@ -88,15 +108,25 @@
 
 
 
-    <div id="container">
-        <h1>Accidents in County</h1>
-    </div>
+    <h1>Accidents in County</h1>
+    <h2>county name: DeKalb
+    <p id='message'>page loading...</p></h2>
+    <div id='map'></div>
 
     <script type="text/javascript">
         var countyname='DeKalb';
-        d3.select('#container').append('h2').text('County Name:  '+countyname);
-        d3.select('#container').append('p').text('Page loading...').style('text-align','center').attr('id','message');
+        //leaflet map
+        var osmTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
 
+        var map = L.map('map',{scrollWheelZoom:false})
+        .addLayer(osmTiles)
+        .setView([33.8,-84.2], 11);
+
+        var svg = d3.select(map.getPanes().markerPane).append("svg").attr('id','container');
+        d3.select('.leaflet-control-container').remove();
+        map.dragging.disable();
         var mydata =  d3.dsv(",","../../data_final_project.csv",function(d){
             return d;
         }).then(function(data){
@@ -145,7 +175,12 @@
 
 
 		    //Define path generator
-		    var path = d3.geoPath().projection(projection);
+		    var transform = d3.geoTransform({
+                point: projectPoint
+            });
+
+		    //Define path generator
+		    var path = d3.geoPath().projection(transform);
 
 		    //Create SVG
 		    svg1 = d3.select("#container")
@@ -172,14 +207,18 @@
             }
             var mousemove = function(d){
                 if(showpoints==1){
+                    xPosition = d3.event.x-30;
+                    yPosition = d3.event.y-100;
                     Tooltip
-                        .style("left",(d3.mouse(this)[0]+10) + "px")
-                        .style('top',(d3.mouse(this)[1]+50)+'px')
-                        .html('ID:'+d.ID+'<br>'+'Latitude:'+d.Start_Lat
-                              +'<br>'+'Longtitude:'+d.Start_Lng
-                              +'<br>'+'Severity:'+d.Severity
-                              +'<br>'+'Day of Week:'+Weekday_dict[d.Weekday]
-                              +'<br>'+'time:'+d.Start_Time
+                        .style("left",(xPosition + "px"))
+                        .style('top',(yPosition + 'px'))
+                        //.append('text')
+                        //.attr('transform','translate(0,80)')
+                        .html('ID: '+d.ID+'<br>'+'Latitude: '+d.Start_Lat
+                              +'<br>'+'Longtitude: '+d.Start_Lng
+                              +'<br>'+'Severity: '+d.Severity
+                              +'<br>'+'Day of Week: '+Weekday_dict[d.Weekday]
+                              +'<br>'+'Time: '+d.Start_Time
                               );
                 }
             }
@@ -191,7 +230,7 @@
                         .attr('r',2);
                 }
             }
-            
+
             showpoints=1;
             var removepoints = function(d){
                 if(showpoints==1){
@@ -201,7 +240,7 @@
                 }
                 else{
                     d3.selectAll('circle').style('opacity',1);
-                    cluster_ele.selectAll('circle').style('opacity',0.6);
+                    cluster_ele.selectAll('circle').style('opacity',0.4);
                     d3.select(this).style('fill','rgba(0, 72, 255, 0.541)');
                     showpoints=1;
                 }
@@ -260,10 +299,10 @@
                 .append('circle')
                 .attr('cx',function(d){
                     //console.log(projection([d.Lng, d.Lat]));
-                    return projection([d.Lat, d.Lng])[0];
+                    return map.latLngToLayerPoint([d.Lng, d.Lat]).x;
                 })
                 .attr('cy',function(d){
-                    return projection([d.Lat, d.Lng])[1];
+                    return map.latLngToLayerPoint([d.Lng, d.Lat]).y;
                 })
                 .attr('r',function(d){
                     return clusterScale(d.counts)
@@ -272,7 +311,7 @@
                 .style('stroke','black')
                 .attr('location',function(d){return [d.Lat, d.Lng];})
                 .style('stroke-width',3)
-                .style('opacity',0.6)
+                .style('opacity',0.7);
 
             //Draw Accidents
             circles = svg1.append("g").attr('class','accidents')
@@ -282,15 +321,14 @@
                 .append('circle')
                 .attr('cx',function(d){
                     //console.log(projection([d.Start_Lng, d.Start_Lat]));
-                    return projection([d.Start_Lng, d.Start_Lat])[0];
+                    return map.latLngToLayerPoint([d.Start_Lat, d.Start_Lng]).x;
                 })
                 .attr('cy',function(d){
                     //console.log(d);
-                    return projection([d.Start_Lng, d.Start_Lat])[1];
+                    return map.latLngToLayerPoint([d.Start_Lat, d.Start_Lng]).y;
                 })
                 .attr('r',2)
                 .style('fill','black')
-                .style('pointer-events','all')
                 .attr('id',function(d){return d.ID;})
                 .attr('location',function(d){return [d.Start_Lng, d.Start_Lat];})
                 .on('mouseover',mouseover)
@@ -299,9 +337,9 @@
                 ;
 
             //Draw buttons
-            buttons = d3.select('#container').append('svg')
+            buttons = d3.select('body').append('svg')
                 .attr('class','buttons')
-                //.attr('transform','translate(800,-700)');
+                .attr('transform','translate(50, 50)');
             button1 = buttons.append('g');
             button1.append('rect')
                 .attr('class','button')
@@ -312,7 +350,7 @@
                 .text('Click to show/hide accidents')
                 .attr('x',40).attr('y',20);
                 //.style('fill','black');
-            
+
             button2 = buttons.append('g').attr('transform','translate(290,0)');
             button2.append('rect')
                 .attr('class','button')
@@ -321,7 +359,7 @@
             button2.append('text')
                 .text('Click to show/hide insights for day/night')
                 .attr('x',40).attr('y',20);
-            
+
             button3 = buttons.append('g').attr('transform','translate(600,0)');
             button3.append('rect')
                 .attr('class','button')
@@ -330,23 +368,36 @@
             button3.append('text')
                 .text('Click to show/hide insights for severity')
                 .attr('x',40).attr('y',20);
- 
+
             //Define Tooltip
-            var Tooltip = d3.select('#container')
+            var Tooltip = d3.select(map.getPanes().tooltipPane)
                 .append('div')
-                .attr('id','mytool')
-                .attr('class','tooltip')
-                .style('opacity',0)
+                .attr('id','tooltip')
+                .attr('transform','translate(-30,-80)')
                 .style('border','solid')
                 .style('border-width','2px')
+                .style('opacity',0)
                 //.style('left',300)
                 ;
-            images = d3.select('#container')
+
+            //Append images
+            images = d3.select('body')
                 .append('div')
                 .attr('class','images');
                 //.style('left','800px');
 
-                d3.select('#message').remove();
+
+            function projectPoint(x, y) {
+                    var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+                    this.stream.point(point.x, point.y);
+                } //end projectPoint
+            function applyLatLngToLayer(d) {
+                var y = d.geometry.coordinates[1]
+                var x = d.geometry.coordinates[0]
+                return map.latLngToLayerPoint(new L.LatLng(y, x))
+                }
+
+            d3.select('#message').remove();
             console.log('page load complete!');
         };
 
