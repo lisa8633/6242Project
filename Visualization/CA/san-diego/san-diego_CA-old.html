@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+    <title>Accidents in County</title>
+    <meta charset="utf-8">
+
+    <script type="text/javascript" src="//d3js.org/d3.v5.min.js"></script>
+    <script src="../../lib/d3-tip.min.js"></script>
+    <script src="../../lib/d3-legend.min.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+	<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+
+
+    <style type="text/css">
+        #container {
+				width: 800px;
+				margin-left: 30px;
+				margin-right: auto;
+				margin-top: 30px;
+				padding: 30px;
+				background-color: white;
+			}
+        .buttons{
+            width:960px;
+            height:40px;
+            background-color:none;
+            padding: 5px;
+        }
+        .button{
+            width:20px;
+            height:20px;
+            stroke:rgba(0, 72, 255, 0.541);
+            stroke-width: 3px;
+            fill:white;
+        }
+		h1 {
+				font-size: 24px;
+				margin: 0;
+                text-align:center;
+			}
+        h2 {
+			font-size: 20px;
+			margin: 0;
+            text-align:center;
+		}
+		p {
+				font-size: 16px;
+				margin: 15px 0 10px 0;
+			}
+		svg {
+				background-color:none;
+				padding-left: 20px;
+			}
+		path {
+				fill: #799dcb;
+				stroke: white;
+				}
+
+        circle{
+            pointer-events:all;
+        }
+.b {
+          border: none;
+          color: white;
+          padding: 10px 25px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 16px;
+          margin: 4px 2px;
+          cursor: pointer;
+            background-color: #799dcb;
+        }
+
+
+    </style>
+    <button class="b" onclick="location.href = '../../States_visualization.html'">Go back to U.S. map</button>
+    <button class="b" onclick="location.href = '../CA_map.html'">Go back to California map</button>
+
+    <title></title>
+</head>
+
+
+<body>
+
+
+
+    <div id="container">
+        <h1>Accidents in County</h1>
+    </div>
+
+    <script type="text/javascript">
+        var countyname='San Diego';
+        d3.select('#container').append('h2').text('County Name:  '+countyname);
+        d3.select('#container').append('p').text('Page loading...').style('text-align','center').attr('id','message');
+
+        var mydata =  d3.dsv(",","../../data_final_project.csv",function(d){
+            return d;
+        }).then(function(data){
+            mydata = data.filter(function(d){return d.County=="San Diego";});
+            return mydata;
+        });
+        var clusters = d3.dsv(',','../../Centers.csv',function(d){
+            return d;
+        }).then(function(data){
+            data = data.filter(function(d){return d.County=="San Diego";});
+            return data;
+        });
+
+        var county_json = d3.json("../../us_county.json");
+
+        Promise.all([mydata, clusters, county_json]).then(function([mydata, clusters, county_json]) {
+            ready(null, mydata, clusters, county_json);
+        });
+
+        function ready(error, mydata, clusters, county_json){
+            createVisualization(mydata, clusters, county_json)
+        }
+
+        function createVisualization(mydata, clusters, county_json){
+            //console.log(county_json);
+            //console.log('log json');
+            //console.log(mydata);
+            //console.log('log data');
+            //console.log(clusters);
+            //console.log('log clusters');
+
+            //Width and height
+            county_json= county_json.features.filter(FL);
+                     function FL(age) {
+                         return age.properties.NAME == "San Diego";
+                     }
+
+  console.log("geojson", county_json);
+		    var w = 960;
+		    var h = 700;
+
+		    //Define map projection
+		    var projection = d3.geoMercator().center([ -116.5, 33 ])
+								   .translate([ w/2, h/2 ])
+								   .scale([ w*16.5 ]);
+
+
+		    //Define path generator
+		    var path = d3.geoPath().projection(projection);
+
+		    //Create SVG
+		    svg1 = d3.select("#container")
+				.append("svg")
+                .attr('id','map')
+				.attr("width", w)
+				.attr("height", h);
+
+            var Weekday_dict={0:'Monday',1:'Tuesday',2:'Wednesday',3:'Thursday',4:'Friday',5:'Saturday',6:'Sunday'}
+
+            var maxnum = d3.max(clusters, function(d){return d.counts})
+            var minnum = d3.min(clusters, function(d){return d.counts})
+            var clusterScale = d3.scaleLinear().domain([0,maxnum]).range([0,20])
+
+            //Create Action Function
+            var mouseover = function(d){
+                if(showpoints==1){
+                    //console.log('mouseover function executed!');
+                    Tooltip.style('opacity',1);
+                    d3.select(this)
+                        .style('fill','red')
+                        .attr('r',5);
+                }
+            }
+            var mousemove = function(d){
+                if(showpoints==1){
+                    Tooltip
+                        .style("left",(d3.mouse(this)[0]+10) + "px")
+                        .style('top',(d3.mouse(this)[1]+50)+'px')
+                        .html('ID:'+d.ID+'<br>'+'Latitude:'+d.Start_Lat
+                              +'<br>'+'Longtitude:'+d.Start_Lng
+                              +'<br>'+'Severity:'+d.Severity
+                              +'<br>'+'Day of Week:'+Weekday_dict[d.Weekday]
+                              +'<br>'+'time:'+d.Start_Time
+                              );
+                }
+            }
+            var mouseleave = function(d) {
+                if(showpoints==1){
+                    Tooltip.style("opacity", 0);
+                    d3.select(this)
+                        .style('fill','black')
+                        .attr('r',2);
+                }
+            }
+            
+            showpoints=1;
+            var removepoints = function(d){
+                if(showpoints==1){
+                    d3.selectAll('circle').style('opacity',0);
+                    d3.select(this).style('fill','white');
+                    showpoints=0;
+                }
+                else{
+                    d3.selectAll('circle').style('opacity',1);
+                    cluster_ele.selectAll('circle').style('opacity',0.4);
+                    d3.select(this).style('fill','rgba(0, 72, 255, 0.541)');
+                    showpoints=1;
+                }
+            }
+            showimage1=0
+            var loadimage1 = function(d){
+                if(showimage1==0){
+                    console.log('loadimage1');
+                    d3.select(this).style('fill','rgba(0, 72, 255, 0.541)');
+                    image1 = images.append('img').attr('src','image1.png').attr('width',w)
+                    showimage1=1;
+                }
+                else{
+                    console.log('removeimage1');
+                    image1.remove();
+                    d3.select(this).style('fill','white');
+                    showimage1=0;
+                }
+            }
+            showimage2=0;
+            var loadimage2 = function(d){
+                if(showimage2==0){
+                    console.log('loadimage2');
+                    d3.select(this).style('fill','rgba(0, 72, 255, 0.541)');
+                    image2 = images.append('img').attr('src','image2.png').attr('width',w)
+                    showimage2=1;
+                }
+                else{
+                    console.log('removeimage2');
+                    image2.remove();
+                    d3.select(this).style('fill','white');
+                    showimage2=0;
+                }
+            }
+
+
+            //Draw Map
+            district = svg1.append("g")
+                .attr('class','county')
+                .attr("id",countyname)
+                .selectAll("path")
+			    .data(county_json)
+			    .enter()
+			    .append("path")
+			    .attr("d", path)
+                .attr('name',function(d){
+                    return d.properties.name;
+                });
+
+
+            //Draw Cluster Circles
+            cluster_ele = svg1.append("g").attr('class','clusters')
+            cluster_ele.selectAll('circle')
+                .data(clusters)
+                .enter()
+                .append('circle')
+                .attr('cx',function(d){
+                    //console.log(projection([d.Lng, d.Lat]));
+                    return projection([d.Lat, d.Lng])[0];
+                })
+                .attr('cy',function(d){
+                    return projection([d.Lat, d.Lng])[1];
+                })
+                .attr('r',function(d){
+                    return clusterScale(d.counts)
+                })
+                .style('fill','yellow')
+                .style('stroke','black')
+                .attr('location',function(d){return [d.Lat, d.Lng];})
+                .style('stroke-width',3)
+                .style('opacity',0.7);
+
+            //Draw Accidents
+            circles = svg1.append("g").attr('class','accidents')
+                .selectAll('circle')
+                .data(mydata)
+                .enter()
+                .append('circle')
+                .attr('cx',function(d){
+                    //console.log(projection([d.Start_Lng, d.Start_Lat]));
+                    return projection([d.Start_Lng, d.Start_Lat])[0];
+                })
+                .attr('cy',function(d){
+                    //console.log(d);
+                    return projection([d.Start_Lng, d.Start_Lat])[1];
+                })
+                .attr('r',2)
+                .style('fill','black')
+                .style('pointer-events','all')
+                .attr('id',function(d){return d.ID;})
+                .attr('location',function(d){return [d.Start_Lng, d.Start_Lat];})
+                .on('mouseover',mouseover)
+                .on('mousemove',mousemove)
+                .on('mouseleave',mouseleave)
+                ;
+
+            //Draw buttons
+            buttons = d3.select('#container').append('svg')
+                .attr('class','buttons')
+                //.attr('transform','translate(800,-700)');
+            button1 = buttons.append('g');
+            button1.append('rect')
+                .attr('class','button')
+                .attr('transform','translate(15,5)')
+                .style('fill','rgba(0, 72, 255, 0.541)')
+                .on('click',removepoints);
+            button1.append('text')
+                .text('Click to show/hide accidents')
+                .attr('x',40).attr('y',20);
+                //.style('fill','black');
+            
+            button2 = buttons.append('g').attr('transform','translate(290,0)');
+            button2.append('rect')
+                .attr('class','button')
+                .attr('transform','translate(15,5)')
+                .on('click',loadimage1);
+            button2.append('text')
+                .text('Click to show/hide insights for day/night')
+                .attr('x',40).attr('y',20);
+            
+            button3 = buttons.append('g').attr('transform','translate(600,0)');
+            button3.append('rect')
+                .attr('class','button')
+                .attr('transform','translate(15,5)')
+                .on('click',loadimage2);
+            button3.append('text')
+                .text('Click to show/hide insights for severity')
+                .attr('x',40).attr('y',20);
+ 
+            //Define Tooltip
+            var Tooltip = d3.select('#container')
+                .append('div')
+                .attr('id','mytool')
+                .attr('class','tooltip')
+                .style('opacity',0)
+                .style('border','solid')
+                .style('border-width','2px')
+                //.style('left',300)
+                ;
+            images = d3.select('#container')
+                .append('div')
+                .attr('class','images');
+                //.style('left','800px');
+                
+            d3.select('#message').remove();
+            console.log('page load complete!');
+        };
+
+
+
+
+    </script>
+
+</body>
+
+</html>
