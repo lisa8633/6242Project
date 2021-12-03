@@ -9,4 +9,4 @@ To run the visualization, start with the file called States_visualization. From 
 
 Accident Clustering is run using the file Clustering_CountyWide.ipynb. The notebook will use the Accident_Count_Per_Top10County & State.csv file as data source. After clustering, it would also give latitute and longitude of numbered cluster centers and saved in the file Centers.csv for further visualization.   
 
-Execution: See demo video - Project_Demo.mov
+Execution: See demo video - https://youtu.be/M9BQeqTz3TU
